@@ -1,0 +1,10 @@
+#!/bin/bash
+
+floatWorkTime=`cat /proc/uptime | awk '{print $1;}'`
+
+i=${floatWorkTime%.*}
+((sec=i%60, i/=60, min=i%60, i/=60,  hrs=i%24, asd=i/24))
+
+echo "System work time: $asd days $hrs hours $min minutes $sec secounds"
+
+
