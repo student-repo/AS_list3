@@ -1,0 +1,97 @@
+#!/bin/bash
+
+ bcb=()
+        i=0
+        while read -r line || [[ -n "$line" ]]; do
+        if ((i > 1)); then
+         bcb+=(${line%% *})
+        fi
+                i=$((i+1))
+        done < /proc/net/dev
+
+
+
+ddd=()
+        for i in "${bcb[@]}"
+        do
+
+
+        singleInterface=(`cat /proc/net/dev | grep "$i"`)
+        ddd+=(${singleInterface[1]})
+        ddd+=(${singleInterface[9]})
+
+        done
+
+
+while true
+do
+
+	floatWorkTime=`cat /proc/uptime | awk '{print $1;}'`
+
+	i=${floatWorkTime%.*}
+	((sec=i%60, i/=60, min=i%60, i/=60,  hrs=i%24, asd=i/24))
+
+	echo "System work time: $asd days $hrs hours $min minutes $sec secounds"
+
+	fullBat=`cat /sys/class/power_supply/BAT0/uevent | grep 'POWER_SUPPLY_ENERGY_FULL='`
+	nowBat=`cat /sys/class/power_supply/BAT0/uevent | grep 'POWER_SUPPLY_ENERGY_NOW='`
+	fullBattery=${fullBat##*=}
+	nowBattery=${nowBat##*=}
+	nowBattery=$((nowBattery * 100));
+	batteryState=$((nowBattery / fullBattery));
+	echo " Battery state: $batteryState"
+
+
+	interfaces=()
+	i=0
+	while read -r line || [[ -n "$line" ]]; do
+	if ((i > 1)); then
+   	 interfaces+=(${line%% *})
+	fi
+        	i=$((i+1))
+	done < /proc/net/dev
+
+	dataTransferB=()
+	for i in "${interfaces[@]}"
+	do
+
+
+	singleInterface=(`cat /proc/net/dev | grep "$i"`)
+	dataTransferB+=(${singleInterface[1]})
+	dataTransferB+=(${singleInterface[9]})
+
+	done
+	
+	
+	#printf '%s\n' "${dataTransferB[@]}"
+	#echo ${#dataTransferB[@]}
+	#printf '%s\n' "${ddd[@]}"
+
+
+	g=0
+	for i in "${interfaces[@]}"
+       	do
+		#echo " old transfer: $ddd[$g]"
+		#echo " new transfer: $dataTransfer[$g]"
+
+		
+		
+		fff=$((${dataTransferB[g]}-${ddd[g]}))
+		g=$((g+1))
+
+		ggg=$((${dataTransferB[g]}-${ddd[g]}))
+                g=$((g+1))
+
+		#echo "old transfer: ${ddd[g]}  now: ${dataTransferB[g]}"
+		echo "Data speed transfer interface $i B/s receive: $fff B/s transmit: $ggg B/s"
+
+        done
+
+	ddd=("${dataTransferB[@]}")
+	echo ""
+
+
+	sleep 1
+
+done
+	
