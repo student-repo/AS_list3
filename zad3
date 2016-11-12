@@ -1,0 +1,33 @@
+#!/bin/bash
+
+while true 
+do
+
+pageContent=`lynx -dump $1`
+
+
+if [ -e "`pwd`/actualHistory" ]; then
+                  before=`cat actualHistory`
+ else
+         before=""
+ fi
+
+echo $pageContent > actualHistory
+
+pageContent=`cat actualHistory`
+
+if [ -e "`pwd`/actualHistory" ] && [ "$pageContent" == "$before" ] || [ $before = ""]; then
+  		 echo "no change detedted, checked for: `date`"
+else
+
+	echo "change detected, checked for: `date`"
+	echo $before > oldHistory
+        diff actualHistory oldHistory | tr " " "\n" | xmessage -file -
+	rm oldHistory
+	# `diff $pageContent $before`
+	git add actualHistory
+	git commit -m "."
+fi
+
+sleep $2
+done
