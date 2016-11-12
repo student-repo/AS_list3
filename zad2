@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo  "       PPID	        	PID		         STAT		        COMMAND"
+
+read -r -a allProcesses <<< `ls /proc | grep -o '[0-9]*'`
+
+j=0
+for i in "${allProcesses[@]}"
+   do 
+${nowBat##*=}
+
+	if [ -d "/proc/${allProcesses[j]}" ]; then
+	
+	processInfo=`cat /proc/${allProcesses[j]}/status`
+	pid=`echo "$processInfo" | grep 'Pid:' | head -n 1`
+	ppid=`echo "$processInfo" | grep 'PPid:'`
+	comm=`echo "$processInfo" | grep 'Name:'`
+	state=`echo "$processInfo" | grep 'State:'`
+	#pid=`cat /proc/${allProcesses[j]}/status | grep 'Pid:' | head -n 1`
+	#echo "pid? $apid"
+	#ppid=`cat /proc/${allProcesses[j]}/status | grep 'PPid:'`
+	#comm=`cat /proc/${allProcesses[j]}/status | grep 'Name:'`
+	#state=`cat /proc/${allProcesses[0]}/status | grep 'State:'`
+	
+	pidValue=${pid##*:}
+	ppidValue=${ppid##*:}
+	commValue=${comm##*:}
+	stateValue=${state##*:}
+
+	echo "$ppidValue		$pidValue		$commValue		$stateValue"
+
+	fi
+
+	j=$((j+1))
+  done
