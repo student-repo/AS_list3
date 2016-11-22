@@ -1,0 +1,70 @@
+#!/bin/bash
+ 
+ allFiles=( $(find $1 -type f)) #set all files path into array
+ 
+allHashes=()
+ j=0
+  for i in "${allFiles[@]}"
+          do
+                  allFiles[j]=`md5sum ${allFiles[j]}`
+                  allHashes+=(`echo ${allFiles[j]} | awk '{print $1;}'`)
+		  j=$((j+1))
+          done
+ 
+ 
+repeatHashes=( $(echo ${allHashes[@]} | tr " " "\n" | sort | uniq -d))
+
+
+
+result=()
+
+g=0
+ for i in "${repeatHashes[@]}"
+           do
+                   for k in "${allFiles[@]}"
+               do 
+                       hash=`echo $k | awk '{print $1;}'`
+		       path=`echo $k | awk '{print $2;}'`      
+                   if [ "$hash" == "$i" ]; then
+
+		if [ -z "${result[g]}" ]; then
+                       result[g]="$k"
+                   else
+                       result[g]+=" $path"        
+      		 fi
+        
+                  fi
+                done
+               g=$((g+1))
+          done
+
+h=0
+toSort=()
+  for i in "${result[@]}"
+            do
+                  result[h]=` echo $i | cut -d " " -f2-`
+	          toSort+=(`echo ${result[h]} | awk '{print $1;}'`)
+		   h=$((h+1))
+          done
+
+
+
+#echo ${result[@]}
+#echo ${#result[@]}
+#echo ${toSort[@]}
+foo=( $(ls -S ${toSort[@]}))
+#echo ${foo[@]}
+#echo ${#foo[@]}
+
+for i in "${foo[@]}"
+             do
+		for j in "${result[@]}"
+             	 do
+			#echo $j
+			#echo $j | awk '{print $1;}'
+                	if [ "`echo $j | awk '{print $1;}'`" == "$i" ]; then
+                        echo $j
+			echo ""
+               		  fi   
+        	  done
+          done
